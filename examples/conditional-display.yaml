@@ -1,0 +1,83 @@
+# Register /local/tesla-model-3-card.js?v=1.1.0 as a JavaScript module first.
+# Main readings and condition roles use automatic Tessie discovery.
+# With multiple vehicles, select the intended vehicle in the visual editor.
+# REPLACE each sensor.replace_me_* and number.replace_me_* below with your IDs.
+# Child cards still require actual entity IDs; they do not inherit role mapping.
+
+type: custom:tesla-model-3-card
+name: Model 3
+nested_title: Useful right now
+cards_layout: stack
+
+display:
+  charger_power: charging
+  outside_temperature: never
+  # All omitted keys remain visible. Other examples:
+  # climate: climate_on
+  # car: always
+  # nested: home
+
+cards:
+  - type: entities
+    title: Charging
+    show_when: charging
+    show_header_toggle: false
+    entities:
+      - entity: number.replace_me_charge_limit
+        name: Charge limit
+      - entity: sensor.replace_me_charge_energy_added
+        name: Energy added
+
+  - type: entities
+    title: Charge before your next trip
+    # A list requires every rule to match. Roles follow the selected vehicle.
+    show_when:
+      - condition: state
+        role: location
+        state: home
+      - low_battery
+    entities:
+      - entity: sensor.replace_me_battery_level
+        name: Battery
+      - entity: sensor.replace_me_battery_range
+        name: Estimated range
+
+  - type: history-graph
+    title: Battery history
+    hours_to_show: 24
+    # A custom threshold: strictly below 35, not below-or-equal.
+    show_when:
+      condition: numeric_state
+      role: battery
+      below: 35
+    entities:
+      - entity: sensor.replace_me_battery_level
+        name: Battery
+
+# Examples of alternative show_when rules (replace the rule on a card above):
+#
+# Any matching rule:
+# show_when:
+#   condition: or
+#   conditions:
+#     - charging
+#     - low_battery
+#
+# An explicit entity instead of an automatically discovered role:
+# show_when:
+#   condition: state
+#   entity: input_boolean.replace_me_show_tesla_history
+#   state: "on"
+#
+# A state list, using entity_id as an alias for entity:
+# show_when:
+#   condition: state
+#   entity_id: device_tracker.replace_me_vehicle_location
+#   state:
+#     - home
+#     - work
+#
+# Presets: always, never, charging, not_charging, home, away, climate_on,
+# climate_off, locked, unlocked, sentry_on, low_battery (below 20%).
+# Unknown/unavailable readings do not satisfy state-dependent presets.
+# Conditions control visibility, not permissions or access to your vehicle.

@@ -1,0 +1,45 @@
+# OPTIONAL: add this to Home Assistant's configuration.yaml, not dashboard YAML.
+# If you already have a sensor: section, append the list item to that section.
+# Keep your Tessie token on the Home Assistant server in secrets.yaml.
+#
+# Add these TWO entries to secrets.yaml (replace the placeholders):
+# tessie_model_3_state_url: "https://api.tessie.com/REPLACE_WITH_YOUR_VIN/state?use_cache=true"
+# tessie_api_authorization: "Bearer REPLACE_WITH_YOUR_TESSIE_ACCESS_TOKEN"
+#
+# The word "Bearer" and the space after it are REQUIRED in the secret value.
+# Do not put your Tessie access token in this card or any frontend resource.
+#
+# This imports the documented exterior paint code. Tessie does not document a
+# custom Colorizer/wrap hex value for this endpoint. See PAINT-COLOR.md.
+
+sensor:
+  - platform: rest
+    name: Model 3 Exterior Color
+    unique_id: tesla_model_3_exterior_color
+    resource: !secret tessie_model_3_state_url
+    method: GET
+    headers:
+      Authorization: !secret tessie_api_authorization
+      Accept: application/json
+    scan_interval: 3600
+    timeout: 20
+    icon: mdi:palette
+    availability: >-
+      {% set config = value_json.get('vehicle_config', {}) if value_json is mapping else {} %}
+      {% set paint = config.get('exterior_color') if config is mapping else none %}
+      {{ paint is string and paint | trim | length > 0
+         and paint | lower not in ['unknown', 'unavailable', 'none', 'null'] }}
+    value_template: >-
+      {% set config = value_json.get('vehicle_config', {}) if value_json is mapping else {} %}
+      {% set paint = config.get('exterior_color') if config is mapping else none %}
+      {{ paint | trim if paint is string and paint | trim | length > 0 else 'unknown' }}
+
+# After checking your server configuration and restarting Home Assistant, confirm
+# the actual entity ID in Settings > Devices & services > Entities.
+# The expected entity ID is sensor.model_3_exterior_color; an existing entity with
+# the same name can cause Home Assistant to assign a different ID.
+#
+# In your dashboard card:
+# type: custom:tesla-model-3-card
+# color_entity: sensor.model_3_exterior_color
+# car_color: "#687583"  # Visual fallback when paint data is missing or unsupported.
