@@ -1,0 +1,57 @@
+# Paste into a Home Assistant Manual card after registering the JS resource.
+# Automatic discovery selects your single Tessie vehicle without any entity IDs.
+# With several vehicles, choose one in the visual editor and save it.
+# The entire minimum configuration is: type: custom:tesla-model-3-card
+
+type: custom:tesla-model-3-card
+name: Model 3
+subtitle: Electric, every day.
+theme: dark
+car_color: "#d6d9dc"
+show_details: true
+
+# OPTIONAL: uncomment after creating the server-side REST sensor from
+# tessie-color-sensor.yaml, or substitute an existing paint helper/sensor.
+# color_entity: sensor.model_3_exterior_color
+# color_attribute: hex  # Only if your chosen entity has this actual attribute.
+
+# OPTIONAL: save a specific Tessie device from the visual editor, or use a prefix.
+# device_id: REPLACE_WITH_THE_HOME_ASSISTANT_DEVICE_ID
+# entity_prefix: my_model_3
+
+# OPTIONAL: display your own fixed image. It is not recolored by car_color.
+# image: /local/my-model-3.png
+
+# OPTIONAL: explicitly override roles that automatic discovery cannot resolve.
+# These entity IDs are placeholders; substitute your real IDs before uncommenting.
+# entities:
+#   battery: sensor.my_model_3_battery_level
+#   range: sensor.my_model_3_battery_range
+#   lock: lock.my_model_3_lock
+
+nested_title: Charging & history
+cards_layout: stack  # Change to grid for two columns on wider cards.
+show_nested: true   # false starts the area collapsed; it remains expandable.
+
+# The examples below are normal child-card configurations.
+# REPLACE ALL nested entity IDs with IDs from your own Home Assistant instance.
+# Child cards do not inherit the main card's automatic entity discovery.
+# Delete the cards: list if you only want the automatically configured main card.
+cards:
+  - type: entities
+    title: Charging
+    show_header_toggle: false
+    entities:
+      - entity: number.model_3_charge_limit
+        name: Charge limit
+      - entity: sensor.model_3_charge_energy_added
+        name: Energy added
+  - type: history-graph
+    title: Battery today
+    hours_to_show: 24
+    entities:
+      - entity: sensor.model_3_battery_level
+        name: Battery
+
+# You can append any installed custom card under cards: using its own documented
+# configuration. Register that card's frontend resource separately if required.
