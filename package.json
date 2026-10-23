@@ -1,0 +1,7 @@
+{
+  "name": "tesla-model-3-card",
+  "version": "1.1.0",
+  "type": "module",
+  "private": true,
+  "scripts": { "build": "node build.mjs", "test": "node --test tests/*.test.mjs" }
+}
